@@ -1,0 +1,32 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: catR parity validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      # Ground-truth catR references (reference/catr_reference.json,
+      # reference/catr_reference_goodbank.json, reference/catr_derivatives.json)
+      # are committed, so the parity replay needs no R/catR install here.
+      # Regenerating them is a local step: it needs the item bank CSV and the
+      # real catR package (see README "Parity with catR").
+      - name: Validate default (degenerate) bank
+        run: uv run python scripts/validate.py
+
+      - name: Validate well-behaved synthetic bank (strict BM/ML/WL)
+        run: uv run python scripts/validate.py reference/catr_reference_goodbank.json

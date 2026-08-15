@@ -1,0 +1,54 @@
+[project]
+name = "catpie"
+version = "0.1.0"
+description = "Computerized adaptive testing (CAT) in pure Python - a faithful translation of the most relevant subset of the R package catR: 4PL IRF, EAP/BM/ML/WL ability estimation with standard errors, and MFI/bOpt item selection."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "GPL-3.0-or-later" }
+authors = [
+    { name = "Tim Schaefer", email = "ts+code@rcmd.org" },
+]
+keywords = [
+    "irt",
+    "item-response-theory",
+    "cat",
+    "computerized-adaptive-testing",
+    "adaptive-testing",
+    "catr",
+    "4pl",
+    "psychometrics",
+    "psychology",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/dfsp-spirit/catpie"
+Repository = "https://github.com/dfsp-spirit/catpie"
+"Bug Tracker" = "https://github.com/dfsp-spirit/catpie/issues"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/catpie"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
