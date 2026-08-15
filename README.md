@@ -2,19 +2,17 @@
 
 
 
-<img src="img/catpie.jpg" alt="catpie logo" width="800"/>
-
-
 [![CI](https://github.com/dfsp-spirit/catpie/actions/workflows/ci.yml/badge.svg)](https://github.com/dfsp-spirit/catpie/actions/workflows/ci.yml)
 [![Validate](https://github.com/dfsp-spirit/catpie/actions/workflows/validate.yml/badge.svg)](https://github.com/dfsp-spirit/catpie/actions/workflows/validate.yml)
 [![Docs](https://github.com/dfsp-spirit/catpie/actions/workflows/docs.yml/badge.svg)](https://github.com/dfsp-spirit/catpie/actions/workflows/docs.yml)
 
-**Documentation:** <https://dfsp-spirit.github.io/catpie/> (user-friendly docs for
-beginners: concepts, quickstart, and a full API reference).
-
 A faithful **Python translation of the most relevant feature subset of the R package
 [catR](https://cran.r-project.org/package=catR)**, with **zero runtime dependencies** (pure
 Python standard library only).
+
+
+<img src="img/catpie.jpg" alt="catpie logo" width="800"/>
+
 
 Provides Computerized Adaptive Testing (CAT) based on Item Response Theory (IRT) for
 psychological experiments. It is the Python sibling of the JavaScript port
@@ -22,6 +20,7 @@ psychological experiments. It is the Python sibling of the JavaScript port
 the same catR subset, validated against the *real* R package, and the two ports use
 line-by-line matching code so that results agree with catR — and with each other — to
 floating-point precision.
+
 
 ## About
 
@@ -42,6 +41,15 @@ details.
 Unlike alternatives such as `py2r` (which shell out to R), catpie is a **pure Python**
 re-implementation with no R runtime and no heavy dependency chain — so it plays nicely inside
 large Python environments such as PsychoPy-based experiment stacks.
+
+
+## Documentation
+
+
+**API Docs** <https://dfsp-spirit.github.io/catpie/> (user-friendly docs for
+beginners: concepts, quickstart, and a full API reference).
+
+
 
 ## Installation
 
