@@ -23,18 +23,39 @@ class OptimizeResult(NamedTuple):
 
 
 def dnorm(x: Number, mean: Number = 0, sd: Number = 1) -> float:
-    """Standard normal (or normal) density, matching R's ``dnorm(x, mean, sd)``."""
+    """
+    Density of the normal distribution, matching R's ``dnorm``.
+
+    Gives the height of the normal (bell) curve at point ``x``. Used as the
+    ``"norm"`` prior in EAP/BM estimation.
+
+    Args:
+        x: Point at which to evaluate the density.
+        mean: Mean of the normal distribution (default ``0``).
+        sd: Standard deviation, must be ``> 0`` (default ``1``).
+
+    Returns:
+        The density (a positive float; largest at ``x == mean``).
+    """
     z = (x - mean) / sd
     return math.exp(-0.5 * z * z) / (sd * math.sqrt(2.0 * math.pi))
 
 
 def linspace(start: Number, stop: Number, n: int) -> list[float]:
     """
-    Linearly spaced sequence, matching R's ``seq(from, to, length.out = n)``.
+    Return ``n`` evenly spaced numbers from ``start`` to ``stop`` (inclusive).
 
-    R computes ``from + (0:(n-1)) * by`` with ``by = (to-from)/(n-1)``; we
-    replicate that exactly (do NOT use ``numpy.linspace`` here, it can round
-    the endpoints differently).
+    Matches R's ``seq(from, to, length.out = n)`` exactly, including how the
+    step is computed, so results agree with catR to the last bit. Used to build
+    the EAP integration grid (e.g. 33 points from -4 to 4).
+
+    Args:
+        start: First value.
+        stop: Last value.
+        n: Number of points (``>= 2``).
+
+    Returns:
+        A list of ``n`` floats, ``start`` first and ``stop`` last.
     """
     by = (stop - start) / (n - 1)
     return [start + i * by for i in range(n)]
@@ -42,11 +63,18 @@ def linspace(start: Number, stop: Number, n: int) -> list[float]:
 
 def integrateCatR(x: Sequence[Number], y: Sequence[Number]) -> float:
     """
-    Trapezoid integration, matching catR's ``integrate.catR(x, y)``:
+    Integrate ``y`` over ``x`` using the trapezoid rule.
 
-        hauteur <- x[2:n] - x[1:(n-1)]
-        base    <- rowMeans(cbind(y[1:(n-1)], y[2:n]))
-        res     <- sum(base * hauteur)
+    Approximates the area under the curve by summing trapezoids between
+    consecutive points. Matches catR's ``integrate.catR`` exactly. Used to
+    compute the EAP estimate and its standard error over the integration grid.
+
+    Args:
+        x: The x-coordinates (must be sorted, e.g. from :func:`linspace`).
+        y: The function values at those coordinates (same length as ``x``).
+
+    Returns:
+        The approximate integral (a float).
     """
     res = 0.0
     for i in range(len(x) - 1):
@@ -58,11 +86,20 @@ def integrateCatR(x: Sequence[Number], y: Sequence[Number]) -> float:
 
 def qnorm(p: Number, mean: Number = 0, sd: Number = 1) -> float:
     """
-    Standard normal quantile function, matching R's ``qnorm(p, 0, 1)``.
+    Quantile of the normal distribution, matching R's ``qnorm``.
 
-    Uses Peter J. Acklam's rational approximation (relative error ~1.15e-9),
-    the same accuracy class as R's AS 241 implementation. This is exactly what
-    catjs-irt uses.
+    The inverse of the normal cumulative distribution: for a probability ``p``,
+    returns the value ``z`` such that ``P(Z <= z) = p`` for ``Z ~ N(mean, sd)``.
+    Used by the ``"classification"`` stopping rule to build confidence
+    intervals (e.g. ``qnorm(0.975) ~ 1.96`` for a 95% interval).
+
+    Args:
+        p: A probability in ``(0, 1)`` (``0`` -> ``-inf``, ``1`` -> ``inf``).
+        mean: Mean of the normal distribution (default ``0``).
+        sd: Standard deviation, ``> 0`` (default ``1``).
+
+    Returns:
+        The quantile (a float; ``qnorm(0.5) == mean``).
     """
     if p <= 0:
         return -math.inf
@@ -135,10 +172,26 @@ def uniroot(
     maxIter: int = 1000,
 ) -> float:
     """
-    Root finding by bisection, matching R's ``uniroot`` semantics (f must
-    change sign over [lower, upper]). The default tolerance matches the value
-    used by catjs-irt for catR parity (catR relies on R's ``uniroot`` default
-    accuracy); tighter values are supported.
+    Find a root of ``f`` in ``[lower, upper]`` by bisection.
+
+    ``f`` must change sign over the interval (``f(lower)`` and ``f(upper)``
+    must have opposite signs), which guarantees at least one root. Mirrors
+    R's ``uniroot`` semantics and is used internally by the BM/ML/WL ability
+    estimators. You normally do not need to call it directly.
+
+    Args:
+        f: A function of one variable returning a number.
+        lower: Lower bound of the search interval.
+        upper: Upper bound of the search interval.
+        tol: Convergence tolerance on the interval width (default matches
+            catR parity: about ``1.22e-4``).
+        maxIter: Maximum number of bisection steps (default ``1000``).
+
+    Returns:
+        A float ``x`` in ``[lower, upper]`` with ``f(x) ~ 0``.
+
+    Raises:
+        ValueError: If ``f`` does not change sign over the interval.
     """
     a = lower
     b = upper
@@ -174,9 +227,23 @@ def optimizeScalar(
     maxIter: int = 200,
 ) -> OptimizeResult:
     """
-    Scalar minimizer (golden-section), analogous to R's ``optimize()`` used in
-    catR's ``thetaEst`` fallback. Returns ``OptimizeResult(x, y)`` with x the
-    argmin/argmax and y = f(x).
+    Find the minimum (or maximum) of ``f`` on ``[lower, upper]``.
+
+    Golden-section search, analogous to R's ``optimize()``. Used internally by
+    the BM/ML/WL ability estimators as a fallback when the score equation has
+    no sign change; you normally do not need to call it directly.
+
+    Args:
+        f: A function of one variable returning a number.
+        lower: Lower bound of the search interval.
+        upper: Upper bound of the search interval.
+        maximize: If ``True``, find the maximum instead of the minimum.
+        tol: Convergence tolerance on the interval width (default ``1e-12``).
+        maxIter: Maximum number of iterations (default ``200``).
+
+    Returns:
+        An :class:`OptimizeResult` with fields ``x`` (the location of the
+        optimum) and ``y`` (the function value there, i.e. ``f(x)``).
     """
     g = (lambda x: -f(x)) if maximize else f
     invphi = (math.sqrt(5.0) - 1.0) / 2.0

@@ -104,16 +104,30 @@ def estimateTheta(
     semType: str = "classic",
 ) -> ThetaResult:
     """
-    High-level helper matching the experiment's ``estimate_theta_catr(...)``:
-    estimate ability and its standard error from the items administered so far.
+    Estimate ability and its standard error from the items given so far.
 
-    ``itemBank`` is the full item bank, ``administered`` the 0-indexed
-    administered item indices, ``responses`` the 0/1 responses for them.
+    This is the highest-level estimation helper: hand it the whole item bank,
+    the indices of the items already administered, and the person's 0/1
+    responses, and you get back ``(theta, se)`` in one call. It is exactly the
+    helper the EWM experiment's ``estimate_theta_catr(...)`` uses.
 
-    With no administered items, returns the prior ``(0, Inf)`` (matching the
-    experiment's catr.py).
+    Args:
+        itemBank: The full item bank, as ``(a, b, c, d)`` tuples.
+        administered: 0-based indices (into ``itemBank``) of the items
+            administered so far.
+        responses: 0/1 responses in the same order as ``administered``.
+        method: Estimation method (default ``"EAP"``; also ``"BM"``,
+            ``"ML"``, ``"WL"``).
+        priorDist: Prior distribution (``"norm"`` default).
+        priorPar: Prior parameters (default ``(0, 1)``).
+        D: Scale constant (default ``1.0``).
+        range: Search interval for BM/ML/WL (default ``(-4, 4)``).
+        parInt: EAP integration grid (default ``(-4, 4, 33)``).
+        semType: ``"classic"`` (default) SE form.
 
-    Note: the parameter ``range`` intentionally keeps catR's name.
+    Returns:
+        A :class:`ThetaResult` with fields ``theta`` and ``se``. If no items
+        have been administered yet, returns the prior estimate ``(0.0, inf)``.
     """
     if len(administered) == 0:
         return ThetaResult(0.0, float("inf"))
@@ -151,8 +165,23 @@ def selectNextItem(
     D: float = 1.0,
 ) -> NextItemResult:
     """
-    High-level helper matching the experiment's ``select_next_item_catr(...)``:
-    select the next item (default criterion MFI).
+    Select the next item to administer (default criterion: MFI).
+
+    High-level wrapper around :func:`nextItem` that makes the most common call
+    shorter. It is exactly the helper the EWM experiment's
+    ``select_next_item_catr(...)`` uses.
+
+    Args:
+        itemBank: The full item bank, as ``(a, b, c, d)`` tuples.
+        theta: Current ability estimate (a float, typically ``[-4, 4]``).
+        administered: 0-based indices of the items already administered (they
+            will not be selected again).
+        criterion: ``"MFI"`` (default) or ``"bOpt"``.
+        randomesque: Only the catR default ``1`` is supported.
+        D: Scale constant (default ``1.0``).
+
+    Returns:
+        A :class:`NextItemResult`; see :func:`nextItem` for its fields.
     """
     return nextItem(
         itemBank,

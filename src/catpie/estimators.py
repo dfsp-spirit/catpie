@@ -120,12 +120,48 @@ def thetaEst(
     parInt: Tuple[float, float, int] = (-4, 4, 33),
 ) -> float:
     """
-    Ability estimate. Mirrors catR ``thetaEst(it, x, method=..., ...)``.
-    ``it`` is a sequence of items ``(a, b, c, d)``; ``x`` is the 0/1 response
-    vector.
+    Estimate a person's ability (theta) from their responses.
 
-    Note: the parameter ``range`` intentionally keeps catR's name (it shadows
-    the builtin ``range``); the function never uses the builtin.
+    This is the main estimation function. Give it the items that were
+    administered and the person's 0/1 responses, and it returns the best
+    estimate of their ability. The higher the ability, the "better" the
+    person performed.
+
+    Four estimation methods are available:
+
+    - ``"EAP"`` (default): Bayesian, most robust, uses the prior; the result
+      always lies within the integration grid (default ``[-4, 4]``).
+    - ``"BM"``: Bayesian modal estimate (posterior maximum), uses the prior.
+    - ``"ML"``: maximum likelihood; uses only the responses (no prior). Can
+      be extreme (and is unstable on degenerate item banks, exactly like catR).
+    - ``"WL"``: weighted likelihood; reduces the bias of ML.
+
+    Missing responses (``NaN``/``None``) and their items are ignored.
+
+    Args:
+        it: The administered items as ``(a, b, c, d)`` tuples (same length as
+            ``x``).
+        x: The responses as 0/1 integers (1 = correct); ``NaN``/``None``
+            entries are dropped together with the corresponding items.
+        method: One of ``"EAP"`` (default), ``"BM"``, ``"ML"``, ``"WL"``.
+        priorDist: Prior distribution for ``EAP``/``BM``: ``"norm"``
+            (default), ``"unif"``, ``"Jeffreys"``.
+        priorPar: Prior parameters ``(mean, sd)`` for ``"norm"`` (default
+            ``(0, 1)``) or ``(lower, upper)`` for ``"unif"``.
+        D: Scale constant (default ``1.0``).
+        range: The search interval ``(lower, upper)`` for the BM/ML/WL root
+            finding (default ``(-4, 4)``). Not used by EAP.
+        parInt: ``(lower, upper, npoints)`` of the integration grid for EAP
+            (default ``(-4, 4, 33)``).
+
+    Returns:
+        The estimated ability as a float (a higher value = higher estimated
+        ability). For EAP it lies within the integration grid; BM/ML/WL may
+        return a range boundary when no interior root exists (like catR).
+
+    Raises:
+        ValueError: If ``method`` is not one of EAP/BM/ML/WL, or ``priorDist``
+            is not supported.
     """
     fit, fx = dropMissing(it, x)
 
@@ -196,16 +232,39 @@ def semTheta(
     range: Tuple[float, float] = (-4, 4),
 ) -> float:
     """
-    Standard error of an ability estimate. Mirrors catR ``semTheta(...)``:
+    Standard error (SE) of an ability estimate.
 
-      - EAP -> eapSem
-      - ML  -> 1/sqrt(info)
-      - WL  -> 1/sqrt(info)                    (classic)
-      - BM  -> 1/sqrt(info - dr0)              (classic), dr0 per prior
+    The SE quantifies the uncertainty of an ability estimate :func:`thetaEst`:
+    small SE = confident estimate, large SE = uncertain. It is used by the
+    stopping rules (e.g. stop once ``se`` drops below a threshold) and to build
+    confidence intervals for classification.
 
-    Note: the parameter ``range`` intentionally keeps catR's name (catR uses it
-    only for ``sem.exact``, which is not implemented here); it is accepted for
-    signature parity and otherwise unused.
+    The method should match the one used for estimation (``method=...``).
+
+    Args:
+        thEst: The ability estimate (output of :func:`thetaEst`).
+        it: The administered items as ``(a, b, c, d)`` tuples.
+        x: The responses (0/1); ``NaN``/``None`` are dropped with their items.
+        method: Estimation method: ``"EAP"`` (default), ``"BM"``, ``"ML"``,
+            ``"WL"``.
+        priorDist: Prior distribution for EAP/BM (``"norm"`` default,
+            ``"unif"``, ``"Jeffreys"``).
+        priorPar: Prior parameters (see :func:`thetaEst`).
+        D: Scale constant (default ``1.0``).
+        parInt: Integration grid ``(lower, upper, npoints)`` for EAP (default
+            ``(-4, 4, 33)``).
+        semType: ``"classic"`` (default) or ``"new"`` (only implemented for
+            the classic form in this port).
+        range: Accepted for catR signature parity; not used by the implemented
+            methods.
+
+    Returns:
+        The standard error as a non-negative float. As a rough guide, values
+        below ~0.3 are often considered "precise enough" for adaptive testing.
+
+    Raises:
+        ValueError: If ``method`` is not one of EAP/BM/ML/WL or ``priorDist``
+            is not supported.
     """
     fit, fx = dropMissing(it, x)
 

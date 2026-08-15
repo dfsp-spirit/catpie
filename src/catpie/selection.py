@@ -45,9 +45,42 @@ def nextItem(
     D: float = 1.0,
 ) -> NextItemResult:
     """
-    Select the next item. ``itemBank`` is a sequence of items ``(a, b, c, d)``,
-    ``theta`` the current ability, ``out`` the 0-indexed administered item
-    indices (catR's ``out`` is 1-indexed; we use 0-indexed here).
+    Select the next (most informative) item to administer.
+
+    This is the heart of adaptive testing: given the current ability estimate
+    ``theta`` and the items already used (``out``), it picks the single item
+    that will tell you the most about the person's true ability. You then
+    administer that item, score the response, re-estimate ability, and repeat.
+
+    Two selection criteria are available:
+
+    - ``"MFI"`` (default): Maximum Fisher Information — picks the item with
+      the highest information at the current ability estimate (see :func:`ii`).
+      Usually a "middle-difficulty" item around the current theta.
+    - ``"bOpt"``: picks the item whose difficulty ``b`` is closest to the
+      current ability estimate (simpler, often used early in a test).
+
+    When several items tie for the best criterion value, one of them is chosen
+    at random (catR's ``randomesque = 1`` behaviour).
+
+    Args:
+        itemBank: The full item bank, a list of ``(a, b, c, d)`` tuples.
+        theta: Current ability estimate (a float, typically ``[-4, 4]``).
+        out: Indices (0-based) of items that have already been administered;
+            they will not be selected again. Default: none.
+        criterion: ``"MFI"`` (default) or ``"bOpt"``.
+        randomesque: Only the catR default ``1`` is supported.
+        D: Scale constant (default ``1.0``).
+
+    Returns:
+        A :class:`NextItemResult` with fields ``item`` (the 0-based index of
+        the selected item in the bank), ``par`` (its parameters), ``info``
+        (the criterion value: information for MFI, ``|b - theta|`` for bOpt)
+        and ``criterion``.
+
+    Raises:
+        ValueError: If ``criterion`` is not ``"MFI"``/``"bOpt"`` or
+            ``randomesque`` is not 1.
     """
     if criterion not in ("MFI", "bOpt"):
         raise ValueError(

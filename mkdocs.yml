@@ -1,0 +1,79 @@
+site_name: catpie
+site_description: Computerized adaptive testing (CAT) in pure Python - a faithful translation of the most relevant subset of the R package catR.
+site_url: https://dfsp-spirit.github.io/catpie/
+repo_url: https://github.com/dfsp-spirit/catpie
+repo_name: dfsp-spirit/catpie
+
+theme:
+  name: material
+  logo: assets/catpie.jpg
+  favicon: assets/catpie.jpg
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.instant
+    - navigation.top
+    - navigation.expand
+    - navigation.footer
+    - content.code.copy
+    - content.tabs.link
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: false
+            separate_signature: true
+            show_signature_annotations: true
+            docstring_style: google
+            line_length: 88
+            show_root_heading: true
+            show_category_heading: true
+            show_if_no_docstring: true
+            members_order: source
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/dfsp-spirit/catpie
+
+copyright: Copyright &copy; Tim Schaefer - catpie is a Python translation of the R package <code>catR</code>; it is not written or endorsed by the catR authors.
+
+nav:
+  - Home: index.md
+  - Installation: install.md
+  - Quickstart: quickstart.md
+  - Concepts: concepts.md
+  - API Reference: api.md
+  - Parity with catR: validation.md
+  - Attribution: attribution.md

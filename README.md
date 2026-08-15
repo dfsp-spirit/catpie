@@ -4,6 +4,10 @@
 
 [![CI](https://github.com/dfsp-spirit/catpie/actions/workflows/ci.yml/badge.svg)](https://github.com/dfsp-spirit/catpie/actions/workflows/ci.yml)
 [![Validate](https://github.com/dfsp-spirit/catpie/actions/workflows/validate.yml/badge.svg)](https://github.com/dfsp-spirit/catpie/actions/workflows/validate.yml)
+[![Docs](https://github.com/dfsp-spirit/catpie/actions/workflows/docs.yml/badge.svg)](https://github.com/dfsp-spirit/catpie/actions/workflows/docs.yml)
+
+**Documentation:** <https://dfsp-spirit.github.io/catpie/> (user-friendly docs for
+beginners: concepts, quickstart, and a full API reference).
 
 A faithful **Python translation of the most relevant feature subset of the R package
 [catR](https://cran.r-project.org/package=catR)**, with **zero runtime dependencies** (pure
@@ -172,6 +176,18 @@ uv run pytest              # unit tests (no R needed)
 uv run python scripts/validate.py            # parity vs committed catR references
 uv run python scripts/validate.py reference/catr_reference_goodbank.json  # strict BM/ML/WL
 uv run python examples/demo.py               # demo
+```
+
+### Building the documentation
+
+The user-friendly documentation (built with MkDocs + mkdocstrings) lives in
+[`docs/`](docs/) and is published to GitHub Pages by the
+[`Docs` workflow](.github/workflows/docs.yml). Build it locally with:
+
+```shell
+uv sync --group docs
+uv run mkdocs build --strict   # outputs to site/
+uv run mkdocs serve            # live preview at http://localhost:8000
 ```
 
 ## Scope / non-goals

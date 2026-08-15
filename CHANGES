@@ -1,0 +1,21 @@
+## catpie Changelog
+
+
+
+### Current WIP
+
+* DOC: Add user-friendly MkDocs documentation (concepts, quickstart, API reference) published to GitHub Pages
+* DOC: Enhance all public API docstrings (Google style with Args/Returns/Raises and expected value ranges)
+
+
+### Version 0.1.0 -- Initial release
+
+* Faithful Python translation of the most relevant subset of the R package catR (pure Python, zero runtime dependencies)
+* 4PL item response function with full derivative set: `pi`, `ii`, `ji`
+* Ability estimation EAP/BM/ML/WL with priors norm/unif/Jeffreys: `thetaEst`, `semTheta`, `eapEst`, `eapSem`, `estimateTheta`
+* Item selection MFI/bOpt: `nextItem`, `selectNextItem`
+* Simulation: `genPattern`, `simulateRespondents`, `checkStopRule`, `randomCAT`
+* Numerical helpers mirroring R base functions: `dnorm`, `linspace`, `integrateCatR`, `qnorm`, `uniroot`, `optimizeScalar`
+* Parity harness validated against real catR 3.17 / R 4.6.1 (EAP to ~1e-15, BM/ML/WL to catR's own tolerance); committed references replayed in CI
+* 35 unit tests, GitHub Actions workflows for CI, parity validation and docs publishing
+* uv-managed project; GPL-3.0-or-later license (matches catR)

@@ -56,12 +56,26 @@ def genPattern(
     rng: Optional[Rng] = None,
 ) -> Union[list, list[list]]:
     """
-    Generate a dichotomous 0/1 response pattern for one or more abilities,
-    mirroring catR's ``genPattern(th, it, model=NULL, D=1)`` for the
-    dichotomous case: each item is a Bernoulli draw with probability Pi(th).
+    Simulate a 0/1 response pattern for one or more abilities.
 
-    ``theta`` may be a single ability (returns one 0/1 pattern) or a sequence
-    of abilities (returns a matrix: list of patterns).
+    For each item, the person answers correctly (1) with probability equal to
+    the item response function at the given ability (see :func:`pi`), and
+    incorrectly (0) otherwise. This is used to generate "fake" participants
+    for simulations and validation.
+
+    Args:
+        theta: The true ability level(s). A single number returns one pattern;
+            a list/tuple of numbers returns one pattern per ability (a list of
+            lists).
+        items: The items to respond to, as ``(a, b, c, d)`` tuples.
+        D: Scale constant (default ``1.0``).
+        rng: Optional random source — a callable returning a float in
+            ``[0, 1)``. Defaults to ``random.random``. Inject a fixed function
+            (e.g. ``lambda: 0.5``) for reproducible tests.
+
+    Returns:
+        A list of 0/1 values (one per item) if ``theta`` is a single number,
+        or a list of such lists (one per ability) otherwise.
     """
     if rng is None:
         rng = random.random
@@ -78,10 +92,20 @@ def simulateRespondents(
     rng: Optional[Rng] = None,
 ) -> list[list]:
     """
-    Simulate response patterns for several respondents. Thin wrapper around
-    ``genPattern``; returns a matrix of shape (respondents x items).
+    Simulate responses for several respondents on a whole item bank.
 
-    This is our own minimal helper (not a catR function).
+    Convenience wrapper around :func:`genPattern`: returns one 0/1 pattern per
+    respondent, so you get a matrix of shape (respondents x items). Useful for
+    testing item banks offline before deploying an experiment.
+
+    Args:
+        thetas: True ability of each respondent.
+        itemBank: The item bank, as ``(a, b, c, d)`` tuples.
+        D: Scale constant (default ``1.0``).
+        rng: Optional random source (see :func:`genPattern`).
+
+    Returns:
+        A list (one entry per respondent) of 0/1 lists (one entry per item).
     """
     return genPattern(thetas, itemBank, D=D, rng=rng)
 
@@ -97,10 +121,45 @@ def checkStopRule(
     D: float = 1.0,
 ) -> StopRuleResult:
     """
-    Stopping rule, mirroring catR's ``checkStopRule(th, se, N, it, stop)``.
+    Decide whether an adaptive test should stop.
 
-    Rules (OR-combined): "length" (n >= thr), "precision" (se <= thr),
-    "classification" (CI for th excludes thr), "minInfo" (max item info <= thr).
+    After each administered item, call this with the current ability estimate
+    ``th``, its standard error ``se`` and the number of items administered
+    ``n``. It returns ``True`` (with the rule(s) that triggered) as soon as any
+    of the requested stopping rules is satisfied. Rules are combined with OR.
+
+    Available rules (pass a list to ``rule``, thresholds to ``thr``):
+
+    - ``"length"``: stop after ``thr`` items (e.g. ``rule=["length"],
+      thr=[20]``).
+    - ``"precision"``: stop when the standard error ``se`` drops to ``thr``
+      or below (e.g. ``thr=[0.3]``).
+    - ``"classification"``: stop when the 95% confidence interval of ``th``
+      lies entirely above or below the threshold ``thr`` (e.g. decide whether
+      ability is above 0).
+    - ``"minInfo"``: stop when the maximum item information in the bank falls
+      to ``thr`` or below (i.e. no remaining item can teach much). Requires
+      ``items``.
+
+    Args:
+        th: Current ability estimate.
+        se: Current standard error (output of :func:`semTheta`).
+        n: Number of items administered so far.
+        rule: List of rule names (``"length"``, ``"precision"``,
+            ``"classification"``, ``"minInfo"``).
+        thr: List of thresholds, one per rule (same order as ``rule``).
+        alpha: Significance level for the ``"classification"`` rule (default
+            ``0.05`` -> 95% confidence interval).
+        items: The item bank, required by the ``"minInfo"`` rule.
+        D: Scale constant (default ``1.0``).
+
+    Returns:
+        A :class:`StopRuleResult` with fields ``decision`` (bool: whether to
+        stop) and ``rule`` (list of the rule names that triggered).
+
+    Raises:
+        ValueError: If a rule name is unknown, or ``"minInfo"`` is used
+            without ``items``.
     """
     decision = False
     triggered = []
@@ -148,22 +207,45 @@ def randomCAT(
     rng: Optional[Rng] = None,
 ) -> RandomCatResult:
     """
-    Minimal CAT runner (catR-inspired). Selects items, (optionally) simulates
-    responses, and estimates ability after each step until a stopping rule
-    triggers or the item bank / maxSteps is exhausted.
+    Run a complete (simulated) adaptive test in one call.
 
-    - ``trueTheta``: true ability (only used when simulating responses)
-    - ``itemSelect``: 'MFI' | 'bOpt'
-    - ``startTheta``: ability used for the first selection (default 0)
-    - ``stop``: dict with keys ``rule``, ``thr``, ``alpha`` passed to
-      ``checkStopRule`` (default ``{"rule": ["length"], "thr": [20], "alpha": 0.05}``)
-    - ``minItems``: minimum number of items before stopping is considered
-    - ``maxSteps``: hard cap on administered items (default bank length)
-    - ``responses``: optional fixed 0/1 response sequence to replay instead of
-      simulating (for parity testing against catR)
-    - ``rng``: injectable RNG for response simulation
+    This ties everything together: it repeatedly (1) selects the next item,
+    (2) simulates (or replays) the person's response, and (3) re-estimates
+    ability and its standard error, until a stopping rule triggers or the item
+    bank is exhausted. Use it to validate a question bank and stopping rules
+    offline before deploying the real experiment.
 
-    Note: the parameter ``range`` intentionally keeps catR's name.
+    Args:
+        trueTheta: The person's *true* ability (only used when simulating
+            responses; a number, typically ``[-4, 4]``).
+        itemBank: The full item bank, as ``(a, b, c, d)`` tuples.
+        method: Estimation method (default ``"BM"``; ``"EAP"`` is the most
+            robust).
+        priorDist: Prior distribution (``"norm"`` default).
+        priorPar: Prior parameters (default ``(0, 1)``).
+        D: Scale constant (default ``1.0``).
+        range: Search interval for BM/ML/WL estimation (default ``(-4, 4)``).
+        parInt: Integration grid for EAP (default ``(-4, 4, 33)``).
+        itemSelect: Item selection criterion, ``"MFI"`` (default) or
+            ``"bOpt"``.
+        startTheta: Ability used for the first item selection (default ``0``).
+        stop: A dict with keys ``rule`` (list), ``thr`` (list) and ``alpha``
+            passed to :func:`checkStopRule`. Default:
+            ``{"rule": ["length"], "thr": [20], "alpha": 0.05}``.
+        minItems: Minimum number of items to administer before stopping is
+            considered (default 0).
+        maxSteps: Hard cap on the number of items (default: the bank size).
+        responses: Optional fixed 0/1 response sequence to replay instead of
+            simulating (handy for testing against catR).
+        rng: Optional random source for simulating responses (see
+            :func:`genPattern`).
+
+    Returns:
+        A :class:`RandomCatResult` with the full history: ``administered``
+        (0-based item indices), ``responses``, ``selected``, ``infoHist``,
+        ``thetaHist``, ``seHist``, the triggering ``stopRule`` (or ``None``),
+        ``finalTheta``/``finalSe``, ``nItems``, and the ``method``/``itemSelect``
+        used.
     """
     if stop is None:
         stop = {"rule": ["length"], "thr": [20], "alpha": 0.05}

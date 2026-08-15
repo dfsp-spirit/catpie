@@ -44,16 +44,39 @@ class JiResult(NamedTuple):
 
 def pi(th: float, item: Item, D: float = 1.0) -> PiResult:
     """
-    4PL probability of a correct response and its first three derivatives.
-    Mirrors catR ``Pi(th, it, D)`` for a single item:
+    Probability of a correct answer (and its derivatives) for one item.
 
-        e    <- exp(D * a * (th - b))
-        Pi   <- c + (d - c) * e/(1 + e)
-        Pi[Pi == 0] <- 1e-10
-        Pi[Pi == 1] <- 1 - 1e-10
-        dPi  <- D * a * e * (d - c)/(1 + e)^2
-        d2Pi <- D^2 * a^2 * e * (1 - e) * (d - c)/(1 + e)^3
-        d3Pi <- D^3 * a^3 * e * (d - c) * (e^2 - 4*e + 1)/(1 + e)^4
+    This is the *item response function* (IRF): the chance that a person with
+    ability ``th`` answers an item correctly, given the item's 4-parameter
+    model. In plain words: the higher the ability relative to the item
+    difficulty, the higher the probability.
+
+    Returns the probability ``P`` together with its first, second and third
+    derivatives with respect to ability (``dP``, ``d2P``, ``d3P``) — these are
+    used internally by the information and estimation routines.
+
+    Args:
+        th: Ability level theta. A real number, typically in ``[-4, 4]``
+            (outside that range the probability saturates toward its
+            asymptotes).
+        item: Item parameters as a 4-tuple ``(a, b, c, d)``:
+
+            - ``a`` discrimination, must be ``> 0`` (typically 0.5-2.5)
+            - ``b`` difficulty (typically in ``[-3, 3]``)
+            - ``c`` guessing / lower asymptote, in ``[0, 1)`` (typically 0-0.3)
+            - ``d`` inattention / upper asymptote, in ``(0, 1]`` (typically 0.9-1)
+        D: Scale constant (catR default ``1.0``; use ``1.702`` for the
+            logistic approximation to the normal ogive).
+
+    Returns:
+        A :class:`PiResult` with fields ``P``, ``dP``, ``d2P``, ``d3P``.
+        ``P`` lies between the asymptotes ``c`` and ``d``.
+
+    Note:
+        ``P`` is clamped exactly like catR: ``P == 0`` becomes ``1e-10`` and
+        ``P == 1`` becomes ``1 - 1e-10``. When the exponent overflows (extreme
+        ability and/or discrimination), ``P`` becomes ``NaN`` — the same
+        behaviour as R/catR.
     """
     a, b, c, d = item
     e = _exp(D * a * (th - b))
@@ -77,15 +100,22 @@ def pi(th: float, item: Item, D: float = 1.0) -> PiResult:
 
 def ii(th: float, item: Item, D: float = 1.0) -> IiResult:
     """
-    Fisher information of one item at ability ``th``, and its first two
-    derivatives. Mirrors catR ``Ii(th, it)`` dichotomous branch:
+    Fisher information of one item at ability ``th`` (and its derivatives).
 
-        Q   <- 1 - P
-        Ii  <- dP^2/(P * Q)
-        dIi <- dP * (2*P*Q*d2P - dP^2*(Q - P))/(P^2 * Q^2)
-        d2Ii <- (2*P*Q*(d2P^2 + dP*d3P) - 2*dP^2*d2P*(Q - P))/(P^2*Q^2)
-                - (3*P^2*Q*dP^2*d2P - P*dP^4*(2*Q - P))/(P^4*Q^2)
-                + (3*P*Q^2*dP^2*d2P - Q*dP^4*(Q - 2*P))/(P^2*Q^4)
+    Information measures how much a single item can tell you about a person's
+    ability at level ``th``: it is largest where the item discriminates well
+    (around its difficulty) and smallest where the answer is almost certain.
+    High information = a good next question, which is why item selection uses
+    it (see :func:`nextItem` with ``criterion="MFI"``).
+
+    Args:
+        th: Ability level (real number, typically ``[-4, 4]``).
+        item: Item parameters ``(a, b, c, d)`` — see :func:`pi`.
+        D: Scale constant (default ``1.0``).
+
+    Returns:
+        An :class:`IiResult` with fields ``Ii``, ``dIi``, ``d2Ii``. ``Ii`` is
+        non-negative; it can be ``NaN`` on overflow, exactly like catR.
     """
     pr = pi(th, item, D)
     P = pr.P
@@ -111,12 +141,20 @@ def ii(th: float, item: Item, D: float = 1.0) -> IiResult:
 
 def ji(th: float, item: Item, D: float = 1.0) -> JiResult:
     """
-    Weighted-likelihood quantity (third-derivative term), mirroring catR's
-    ``Ji(th, it)`` dichotomous branch:
+    Weighted-likelihood quantity of one item (and its derivative).
 
-        Q   <- 1 - P
-        Ji  <- dP * d2P/(P * Q)
-        dJi <- (P * Q * (d2P^2 + dP * d3P) - dP^2 * d2P * (Q - P))/(P^2 * Q^2)
+    This helper appears in the maximum-likelihood ("ML") and
+    weighted-likelihood ("WL") ability estimators. You normally do not need
+    to call it directly; it is provided for completeness and for parity with
+    catR.
+
+    Args:
+        th: Ability level (real number).
+        item: Item parameters ``(a, b, c, d)`` — see :func:`pi`.
+        D: Scale constant (default ``1.0``).
+
+    Returns:
+        A :class:`JiResult` with fields ``Ji`` and ``dJi``.
     """
     pr = pi(th, item, D)
     P = pr.P

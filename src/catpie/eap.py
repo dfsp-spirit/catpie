@@ -72,14 +72,35 @@ def eapEst(
     nqp: int = 33,
 ) -> float:
     """
-    EAP ability estimate. Mirrors catR ``eapEst(it, x, ...)``:
+    Ability estimate by Expected A Posteriori (EAP) estimation.
 
-        X  <- seq(from = lower, to = upper, length = nqp)
-        Y1 <- s * prior(s) * L(s)      (g)
-        Y2 <- prior(s) * L(s)          (h)
-        RES <- integrate.catR(X, Y1) / integrate.catR(X, Y2)
+    EAP is a *Bayesian* estimate: it combines what the responses tell us (the
+    likelihood) with a *prior* belief about the ability distribution. It is the
+    most robust of the implemented estimators and the default choice of this
+    package (and of the EWM experiment).
 
-    where prior(s) = dnorm / dunif / sqrt(sum(Ii)) per ``priorDist``.
+    The estimate is computed by numerical integration over a grid of ability
+    values (catR's default: 33 points from ``-4`` to ``4``), so the result is
+    always within ``[lower, upper]``.
+
+    Args:
+        it: The items that were administered, as a list of ``(a, b, c, d)``
+            tuples. Length must equal ``len(x)``.
+        x: The responses, as 0/1 integers (1 = correct) in the same order as
+            ``it``.
+        D: Scale constant (default ``1.0``).
+        priorDist: The prior distribution, one of ``"norm"`` (normal),
+            ``"unif"`` (uniform) or ``"Jeffreys"``.
+        priorPar: Prior parameters. For ``"norm"``: ``(mean, sd)`` — catR
+            default ``(0, 1)`` (standard normal). For ``"unif"``: ``(lower,
+            upper)`` of the uniform interval.
+        lower: Lower bound of the integration grid (default ``-4``).
+        upper: Upper bound of the integration grid (default ``4``).
+        nqp: Number of quadrature points in the grid (catR default ``33``).
+
+    Returns:
+        The estimated ability ``theta`` (a float, always within
+        ``[lower, upper]``).
     """
     L = makeLikelihood(it, x, D)
     X = linspace(lower, upper, nqp)
@@ -104,11 +125,27 @@ def eapSem(
     nqp: int = 33,
 ) -> float:
     """
-    Standard error of an EAP estimate. Mirrors catR ``eapSem(thEst, it, x, ...)``:
+    Standard error of an EAP ability estimate.
 
-        Y1 <- (s - thEst)^2 * prior(s) * L(s)
-        Y2 <- prior(s) * L(s)
-        RES <- sqrt(integrate.catR(X, Y1) / integrate.catR(X, Y2))
+    The standard error tells you how confident you can be in the ability
+    estimate :func:`eapEst`: smaller = more confidence. It is the standard
+    deviation of the posterior distribution, computed by the same numerical
+    integration over the grid.
+
+    Args:
+        thEst: The ability estimate (the output of :func:`eapEst`).
+        it: The administered items, as ``(a, b, c, d)`` tuples.
+        x: The responses (0/1), same order as ``it``.
+        D: Scale constant (default ``1.0``).
+        priorDist: Prior distribution, ``"norm"`` / ``"unif"`` / ``"Jeffreys"``.
+        priorPar: Prior parameters (see :func:`eapEst`).
+        lower: Lower bound of the integration grid (default ``-4``).
+        upper: Upper bound of the integration grid (default ``4``).
+        nqp: Number of quadrature points (catR default ``33``).
+
+    Returns:
+        The standard error (a non-negative float; typically a few tenths, and
+        smaller after more informative items are administered).
     """
     L = makeLikelihood(it, x, D)
     X = linspace(lower, upper, nqp)
