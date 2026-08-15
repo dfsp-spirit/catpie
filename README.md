@@ -1,6 +1,9 @@
 # catpie
 
-<img src="img/catpie.jpg" alt="catpie logo" width="140" align="right" />
+
+
+<img src="img/catpie.jpg" alt="catpie logo" width="800"/>
+
 
 [![CI](https://github.com/dfsp-spirit/catpie/actions/workflows/ci.yml/badge.svg)](https://github.com/dfsp-spirit/catpie/actions/workflows/ci.yml)
 [![Validate](https://github.com/dfsp-spirit/catpie/actions/workflows/validate.yml/badge.svg)](https://github.com/dfsp-spirit/catpie/actions/workflows/validate.yml)
