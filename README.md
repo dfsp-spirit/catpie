@@ -53,6 +53,21 @@ beginners: concepts, quickstart, and a full API reference).
 
 ## Installation
 
+
+### Directly from PyPI (Recommended)
+
+
+The package is available on PyPI: [pypi.org/project/catpie/](https://pypi.org/project/catpie/)
+
+So all you have to do is:
+
+```shell
+pip install catpie
+```
+
+
+### From a git checkout of this repo
+
 The package is managed with [uv](https://docs.astral.sh/uv/). From a checkout:
 
 ```shell
