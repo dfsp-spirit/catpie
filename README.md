@@ -19,6 +19,10 @@ psychological experiments. This is a faithful translation of
 the most relevant subset of the methods provided by catR, validated against the *real* R package.
 We have tests to ensure we match catR output on our test data to floating-point precision.
 
+## Motivation
+
+Sure, you *could* archieve something similar by directly calling catR from python via py2r, but this introduces as dependencies R dev libs at compile-time, r2py with its dependencies, and more importantly an R setup with catR installed **at runtime**. Alternatively you could write a micro-service web app wrapping catR on another machine, but that leaves you with another app to manage, plus the need for a network service in apps that may require low latency. For our setup, which involves running experiments in MRI scanners, none of this was feasible. So here we are: pure python, zero dependency CAT.
+
 
 ## About
 
