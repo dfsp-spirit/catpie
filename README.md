@@ -138,7 +138,7 @@ print(run.finalTheta, run.finalSe)
 
 Item indices are **0-indexed** in the public API.
 
-## Parity with catR (the proof of concept)
+## Parity with catR
 
 The repo ships a validation harness that compares the Python port against the **real R `catR`
 package**. Ground-truth catR output is committed under `reference/` and replayed on every change
