@@ -274,4 +274,4 @@ See [`LICENSE`](LICENSE).
 
 ### What's with that name and the cat pie?
 
-Well, ermmm. We originally intended to call it catPy, analogous to catR. But that name was taken on PyPI. So its catpie now. And why not?!
+Well, ermmm. We originally intended to call it catPy, analogous to catR. But that name was already taken on PyPI. So its catpie now. And why not?!
