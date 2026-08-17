@@ -1,7 +1,7 @@
 # catpie
 
 
-
+[![DOI](https://zenodo.org/badge/1334952582.svg)](https://doi.org/10.5281/zenodo.21946909)
 [![CI](https://github.com/dfsp-spirit/catpie/actions/workflows/ci.yml/badge.svg)](https://github.com/dfsp-spirit/catpie/actions/workflows/ci.yml)
 [![Validate](https://github.com/dfsp-spirit/catpie/actions/workflows/validate.yml/badge.svg)](https://github.com/dfsp-spirit/catpie/actions/workflows/validate.yml)
 [![Docs](https://github.com/dfsp-spirit/catpie/actions/workflows/docs.yml/badge.svg)](https://github.com/dfsp-spirit/catpie/actions/workflows/docs.yml)
@@ -252,8 +252,7 @@ The catR package is currently maintained by **Cheng Hua**.
 
 ### Citing catR
 
-If you use catpie in academic work, please cite the catR papers (and your own paper for the
-adaptive task, if applicable). The authoritative citation information is provided in the
+If you use catpie in academic work, please cite the catR papers. The authoritative citation information is provided in the
 [catR citation file](https://cran.r-project.org/web/packages/catR/citation.html) on CRAN. The
 two main references are:
 
@@ -263,6 +262,8 @@ two main references are:
 - Magis, D., & Barrada, J. R. (2017). Computerized adaptive testing with R: Recent updates of the
   package **catR**. *Journal of Statistical Software*, 76(1), 1–19.
   <https://doi.org/10.18637/jss.v076.c01>
+
+You may also want to cite this Python package via its [DOI](https://doi.org/10.5281/zenodo.21946909) to make clear which implementation you were using.
 
 ### License
 
