@@ -240,8 +240,7 @@ uv run mkdocs serve            # live preview at http://localhost:8000
 
 catpie was written by [Tim Schäfer](https://ts.rcmd.org/), who translated the
 [catR](https://cran.r-project.org/web/packages/catR/index.html)
-[source code](https://github.com/cran/catR) to Python (and previously to JavaScript as
-[catjs-irt](https://github.com/dfsp-spirit/catjs-irt)). **catpie is a Python translation of the
+[source code](https://github.com/cran/catR) to Python. **catpie is a Python translation of the
 R package `catR` — it is not written or endorsed by the catR authors.** All credit for the
 methods implemented here goes to them:
 
