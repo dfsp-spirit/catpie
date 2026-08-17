@@ -15,11 +15,9 @@ Python standard library only).
 
 
 Provides Computerized Adaptive Testing (CAT) based on Item Response Theory (IRT) for
-psychological experiments. It is the Python sibling of the JavaScript port
-[**catjs-irt**](https://github.com/dfsp-spirit/catjs-irt): both are faithful translations of
-the same catR subset, validated against the *real* R package, and the two ports use
-line-by-line matching code so that results agree with catR — and with each other — to
-floating-point precision.
+psychological experiments. This is a faithful translation of
+the most relevant subset of the methods provided by catR, validated against the *real* R package.
+We have tests to ensure we match catR output on our test data to floating-point precision.
 
 
 ## About
