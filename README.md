@@ -26,7 +26,7 @@ Sure, you *could* archieve something similar by directly calling catR from pytho
 
 For our setup, which involves running experiments in MRI scanners, in the strictly controlled IT environment of a Brain Imaging Center, none of the mentioned options were feasible. So here we are: pure python, zero dependency CAT.
 
-Installs with pip, no compilation, system dependencies and web servers needed. [Tested and proven to work](https://github.com/dfsp-spirit/catpie/actions/workflows/ci.yml) on Python 3.9, 3.10, 3.11, 3.12, and 3.13 without introducing any dependencies, so it seamlessly integrates into complex setups and does not clash with version restrictions on Python, scipy, numpy, etc of other packages you may be wanting to use it with (yes, we're looking at you, psychopy).
+It just installs with pip: no compilation, system dependencies and web servers needed. [Tested and proven to work](https://github.com/dfsp-spirit/catpie/actions/workflows/ci.yml) on Python 3.9, 3.10, 3.11, 3.12, and 3.13 without introducing any dependencies, so it seamlessly integrates into complex setups and does not clash with version restrictions on Python, scipy, numpy, etc of other packages you may be wanting to use it with (yes, we're looking at you, psychopy).
 
 
 ## About
