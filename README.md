@@ -270,3 +270,8 @@ You may also want to cite this Python package via its [DOI](https://doi.org/10.5
 catpie is licensed under the **GNU General Public License v3.0 or later** (GPL-3.0-or-later),
 matching the catR package (GPL ≥ 3), since this is a derivative translation of its source code.
 See [`LICENSE`](LICENSE).
+
+
+### What's with that name and the cat pie?
+
+Well, ermmm. We originally intended to call it catPy, analogous to catR. But that name was taken on PyPI. So its catpie now. And why not?!
