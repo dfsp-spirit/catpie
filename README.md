@@ -45,8 +45,7 @@ Basically, this lets you run "smart" questionnaires that adapt to each person as
 Read [this paper by the catR authors](https://www.jstatsoft.org/article/view/v048i08) for all the
 details.
 
-Unlike alternatives such as `py2r` (which shell out to R), catpie is a **pure Python**
-re-implementation with no R runtime and no heavy dependency chain — so it plays nicely inside
+Catpie is a **pure Python** re-implementation with no R runtime and no heavy dependency chain — so it plays nicely inside
 large Python environments such as PsychoPy-based experiment stacks.
 
 
