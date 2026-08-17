@@ -250,7 +250,7 @@ methods implemented here goes to them:
 
 The catR package is currently maintained by **Cheng Hua**.
 
-### Citing catR
+### Citing
 
 If you use catpie in academic work, please cite the catR papers. The authoritative citation information is provided in the
 [catR citation file](https://cran.r-project.org/web/packages/catR/citation.html) on CRAN. The
