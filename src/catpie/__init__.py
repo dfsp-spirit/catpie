@@ -19,6 +19,7 @@ inattention). Item indices are 0-indexed throughout the public API.
 
 from __future__ import annotations
 
+import random
 from typing import NamedTuple, Optional, Sequence, Tuple
 
 from .eap import eapEst, eapSem
@@ -163,6 +164,8 @@ def selectNextItem(
     criterion: str = "MFI",
     randomesque: int = 1,
     D: float = 1.0,
+    seed: Optional[int] = None,
+    rng: Optional[random.Random] = None,
 ) -> NextItemResult:
     """
     Select the next item to administer (default criterion: MFI).
@@ -177,8 +180,13 @@ def selectNextItem(
         administered: 0-based indices of the items already administered (they
             will not be selected again).
         criterion: ``"MFI"`` (default) or ``"bOpt"``.
-        randomesque: Only the catR default ``1`` is supported.
+        randomesque: Number of best items to draw uniformly from (``>= 1``,
+            default ``1`` = always the best item, like catR's default).
         D: Scale constant (default ``1.0``).
+        seed: Optional seed for the draw among the candidates (catR's
+            ``random.seed``); ignored if ``rng`` is given.
+        rng: Optional :class:`random.Random` instance for the draw; pass one
+            object through a whole session for full reproducibility.
 
     Returns:
         A :class:`NextItemResult`; see :func:`nextItem` for its fields.
@@ -190,4 +198,6 @@ def selectNextItem(
         criterion=criterion,
         randomesque=randomesque,
         D=D,
+        seed=seed,
+        rng=rng,
     )

@@ -111,7 +111,9 @@ Faithfully replicated details:
   and catR's **trapezoid** integration.
 * BM/ML/WL exactly as catR: solve the score equation by bisection (`uniroot`) over
   `range=(-4, 4)`, with catR's `optimize()`-based fallback when the score does not change sign.
-* MFI / bOpt selection with catR's random tie-breaking (`randomesque=1`).
+* MFI / bOpt selection with catR's rank-based candidate rule, including
+  `randomesque = k` (`randomesque=1` reproduces catR's default single-item
+  selection).
 
 ## Usage
 
@@ -227,7 +229,10 @@ uv run mkdocs serve            # live preview at http://localhost:8000
 * The dichotomous model with methods `EAP`/`BM`/`ML`/`WL`, priors `norm`/`unif`/`Jeffreys`, and
   criteria `MFI`/`bOpt` are implemented. The rest of catR (polytomous models, other criteria,
   content balancing, exact SEM, robust estimation) raises a clear "not implemented" error.
-* `randomesque` is fixed at catR's default `1`.
+* Item selection supports the `MFI` and `bOpt` criteria only (no `MLWI`,
+  `KL`, `progressive`, `proportional`, `MEI`, `MEPV`, `GDI`, content balancing
+  or `nAvailable`); `randomesque` is only meaningful for the criteria catR
+  treats as rank-based, i.e. exactly those two.
 * The numerics mirror catR exactly, including its known weaknesses (raw product likelihood,
   33-point grid). Making it *more* robust than catR is a deliberate follow-up, after parity is
   proven.

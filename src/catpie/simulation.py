@@ -118,6 +118,7 @@ def checkStopRule(
     thr: Sequence[float] = (20,),
     alpha: float = 0.05,
     items: Optional[Sequence[Item]] = None,
+    out: Optional[Sequence[int]] = None,
     D: float = 1.0,
 ) -> StopRuleResult:
     """
@@ -139,7 +140,14 @@ def checkStopRule(
       ability is above 0).
     - ``"minInfo"``: stop when the maximum item information in the bank falls
       to ``thr`` or below (i.e. no remaining item can teach much). Requires
-      ``items``.
+      ``items``; administered items can be excluded with ``out``.
+
+    The rules are the ones catR's ``checkStopRule()`` implements (including
+    ``minInfo``, which is catR rule 4). Two differences: catR makes ``minInfo``
+    look at whatever bank the caller passes (so forgetting to remove the
+    administered items silently disables the rule), and catR fails with an
+    obscure error on an unknown rule name. catpie raises ``ValueError`` for
+    both.
 
     Args:
         th: Current ability estimate.
@@ -150,7 +158,13 @@ def checkStopRule(
         thr: List of thresholds, one per rule (same order as ``rule``).
         alpha: Significance level for the ``"classification"`` rule (default
             ``0.05`` -> 95% confidence interval).
-        items: The item bank, required by the ``"minInfo"`` rule.
+        items: The item bank, required by the ``"minInfo"`` rule. Pass the
+            full bank and list the administered items in ``out`` to have
+            catpie filter them for you.
+        out: Optional 0-based indices of the items already administered; they
+            are removed from ``items`` before the ``"minInfo"`` check. This
+            is the safe default: with ``out`` given, the rule can fire as soon
+            as the remaining items are all uninformative.
         D: Scale constant (default ``1.0``).
 
     Returns:
@@ -180,7 +194,11 @@ def checkStopRule(
         elif r_ == "minInfo":
             if items is None:
                 raise ValueError('checkStopRule: "minInfo" rule requires `items`')
-            maxI = max(ii(th, item, D).Ii for item in items)
+            bank = list(items)
+            if out:
+                drop = set(out)
+                bank = [item for i, item in enumerate(bank) if i not in drop]
+            maxI = max((ii(th, item, D).Ii for item in bank), default=0.0)
             if maxI <= thr[i]:
                 decision = True
                 triggered.append(r_)
@@ -205,6 +223,8 @@ def randomCAT(
     maxSteps: Optional[int] = None,
     responses: Optional[Sequence[int]] = None,
     rng: Optional[Rng] = None,
+    randomesque: int = 1,
+    seed: Optional[int] = None,
 ) -> RandomCatResult:
     """
     Run a complete (simulated) adaptive test in one call.
@@ -237,8 +257,16 @@ def randomCAT(
         maxSteps: Hard cap on the number of items (default: the bank size).
         responses: Optional fixed 0/1 response sequence to replay instead of
             simulating (handy for testing against catR).
-        rng: Optional random source for simulating responses (see
-            :func:`genPattern`).
+        rng: Optional random source for *simulating responses* (see
+            :func:`genPattern`). This is a zero-argument callable returning a
+            uniform draw, not a :class:`random.Random` instance.
+        randomesque: Number of best items to draw uniformly from at each step
+            (``>= 1``, default ``1`` = always the best item). See
+            :func:`nextItem`.
+        seed: Optional seed for the *item selection* randomness (catR's
+            ``random.seed``). Kept separate from ``rng`` so that responses and
+            selection can be controlled independently; set both for a fully
+            reproducible run.
 
     Returns:
         A :class:`RandomCatResult` with the full history: ``administered``
@@ -260,6 +288,10 @@ def randomCAT(
         "range": range,
         "parInt": parInt,
     }
+
+    # Item-selection randomness (catR's `random.seed`), independent of `rng`,
+    # which drives response generation. None = the global random module.
+    selectRng = random.Random(seed) if seed is not None else None
 
     administered = []
     resp = list(responses) if responses else []
@@ -287,13 +319,23 @@ def randomCAT(
                 thr=stop.get("thr", [20]),
                 alpha=stop.get("alpha", 0.05),
                 items=itemBank,
+                out=administered,
                 D=D,
             )
             if stopRes.decision:
                 stopRule = stopRes.rule
                 break
 
-        sel = nextItem(itemBank, theta, administered, criterion=itemSelect, D=D)
+        sel = nextItem(
+            itemBank,
+            theta,
+            administered,
+            criterion=itemSelect,
+            randomesque=randomesque,
+            D=D,
+            seed=seed,
+            rng=selectRng,
+        )
         selected.append(sel.item)
         infoHist.append(sel.info)
 

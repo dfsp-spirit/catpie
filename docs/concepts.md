@@ -121,8 +121,16 @@ Two criteria are implemented (the `criterion` argument of
   $\theta$**. Simpler and often used early in a test.
 
 Both avoid items already administered (`out` / `administered`). When several
-items tie for the best value, catpie (and catpie) picks one at **random** — the
-so-called `randomesque = 1` behaviour.
+items tie for the best value, catpie picks one at **random** — catR's
+`randomesque = 1` behaviour.
+
+With `randomesque = k` the `k` best eligible items form the candidate set (plus
+anything tied with the k-th best, so the set can be larger than `k`) and one
+candidate is drawn uniformly. That is catR's exposure control: it stops every
+participant from seeing the same items in the same order, at the price of a
+little measurement precision. Use `seed` or a shared `random.Random` to make the
+draws reproducible, and read `NextItemResult.candidates` to log what was
+eligible.
 
 ## 7. Stopping rules
 
