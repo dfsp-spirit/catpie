@@ -111,18 +111,45 @@ interval).
 ## 6. Choosing the next item
 
 Adaptive testing's key step: pick the item that will teach you the most next.
-Two criteria are implemented (the `criterion` argument of
-[`nextItem`](api.md#catpie.selection.nextItem)):
+The `criterion` argument of [`nextItem`](api.md#catpie.selection.nextItem)
+accepts the following (all ported from catR):
 
 - **MFI** (Maximum Fisher Information, default): pick the item with the
   **highest information at the current estimate** — usually an item whose
   difficulty is close to the current $\theta$.
 - **bOpt**: pick the item whose **difficulty `b` is closest to the current
   $\theta$**. Simpler and often used early in a test.
+- **thOpt**: same idea, but closest in the ability at which the item is most
+  informative (differs from `bOpt` once $c>0$ or $d<1$).
+- **MLWI / MPWI**: information averaged over the plausible abilities, weighted
+  by the likelihood of the responses so far (`MLWI`) or by the posterior
+  (`MPWI`). More forgiving than MFI while $\theta$ is still uncertain.
+- **KL / KLP**: Kullback-Leibler divergence between the current estimate and
+  every other ability. Good when the goal is classification rather than a point
+  estimate.
+- **progressive / proportional**: exposure control. Selection starts close to
+  random and converges to MFI as the test proceeds (`AP` sets the speed,
+  `rule`/`thr`/`SETH`/`maxItems` size the transition). This is what you want if
+  many participants share one small item bank.
+- **random**: uniform choice among the eligible items, as a baseline.
 
-Both avoid items already administered (`out` / `administered`). When several
-items tie for the best value, catpie picks one at **random** — catR's
+`MLWI`, `MPWI`, `KL` and `KLP` need the provisional responses (`x`, one 0/1
+per administered item), because the criterion depends on what the person has
+answered so far.
+
+All criteria avoid items already administered (`out` / `administered`). When
+several items tie for the best value, catpie picks one at **random** — catR's
 `randomesque = 1` behaviour.
+
+With `randomesque = k` the `k` best eligible items form the candidate set (plus
+anything tied with the k-th best, so the set can be larger than `k`) and one
+candidate is drawn uniformly. That is catR's exposure control: it stops every
+participant from seeing the same items in the same order, at the price of a
+little measurement precision. Use `seed` or a shared `random.Random` to make the
+draws reproducible, and read `NextItemResult.candidates` to log what was
+eligible. Note that catR applies `randomesque` to the rank-based criteria
+(`MFI`, `bOpt`, `thOpt`) and to the weighted ones, and ignores it for
+`progressive`, `proportional` and `random`.
 
 With `randomesque = k` the `k` best eligible items form the candidate set (plus
 anything tied with the k-th best, so the set can be larger than `k`) and one

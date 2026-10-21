@@ -8,6 +8,8 @@
 * NEW: `checkStopRule(..., out=...)` filters already-administered items for the `minInfo` rule (in catR, forgetting to filter silently disables the rule).
 * NEW: reproducible item selection via `seed` or a shared `random.Random`; unlike catR, catpie never reseeds the global RNG.
 * ENH: `nextItem` validates `randomesque` and raises a clear `ValueError` when no eligible item is left (catR's behaviour there is undefined).
+* NEW: selection criteria `thOpt`, `MLWI`, `MPWI`, `KL`, `KLP`, `progressive`, `proportional` and `random`, plus `nAvailable` filtering; content balancing raises `NotImplementedError` instead of being ignored. New helpers `mwi`, `kl`, `likelihood`.
+* NEW: `thetaEst(..., constantPatt=...)` for degenerate response patterns, `method="ROB"` with Huber/Tukey weights, `fullDist` and `semTheta(..., semExact=True)` for the exact standard error.
 * NEW: parity reference and tests for randomesque selection (`scripts/generate_reference_selection.R`, `reference/catr_selection.json`, `tests/test_selection_randomesque.py`).
 * DOC: Add user-friendly MkDocs documentation (concepts, quickstart, API reference) published to GitHub Pages
 * DOC: Enhance all public API docstrings (Google style with Args/Returns/Raises and expected value ranges)

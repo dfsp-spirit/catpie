@@ -23,7 +23,7 @@ import random
 from typing import NamedTuple, Optional, Sequence, Tuple
 
 from .eap import eapEst, eapSem
-from .estimators import semTheta, thetaEst
+from .estimators import fullDist, semTheta, thetaEst
 from .irf import IiResult, Item, JiResult, PiResult, ii, ji, pi
 from .math import (
     OptimizeResult,
@@ -34,6 +34,7 @@ from .math import (
     qnorm,
     uniroot,
 )
+from .criteria import kl, likelihood, mwi
 from .selection import NextItemResult, nextItem
 from .simulation import (
     RandomCatResult,
@@ -54,11 +55,16 @@ __all__ = [
     "PiResult",
     "IiResult",
     "JiResult",
+    # selection criteria
+    "mwi",
+    "kl",
+    "likelihood",
     # estimation
     "eapEst",
     "eapSem",
     "thetaEst",
     "semTheta",
+    "fullDist",
     # selection
     "nextItem",
     "NextItemResult",

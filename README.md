@@ -111,9 +111,15 @@ Faithfully replicated details:
   and catR's **trapezoid** integration.
 * BM/ML/WL exactly as catR: solve the score equation by bisection (`uniroot`) over
   `range=(-4, 4)`, with catR's `optimize()`-based fallback when the score does not change sign.
-* MFI / bOpt selection with catR's rank-based candidate rule, including
+* MFI / bOpt / thOpt selection with catR's rank-based candidate rule, including
   `randomesque = k` (`randomesque=1` reproduces catR's default single-item
-  selection).
+  selection); plus the likelihood/posterior weighted criteria MLWI/MPWI and
+  KL/KLP, and the exposure-controlling `progressive`/`proportional`/`random`
+  criteria.
+* Degenerate-response handling (`constantPatt`, `current.th`, `bRange`), the
+  robust estimators (`method="ROB"` with Huber/Tukey weights) and the exact
+  standard error (`semExact=True`, computed from the full response-pattern
+  distribution).
 
 ## Usage
 
@@ -226,13 +232,13 @@ uv run mkdocs serve            # live preview at http://localhost:8000
 
 ## Scope / non-goals
 
-* The dichotomous model with methods `EAP`/`BM`/`ML`/`WL`, priors `norm`/`unif`/`Jeffreys`, and
-  criteria `MFI`/`bOpt` are implemented. The rest of catR (polytomous models, other criteria,
-  content balancing, exact SEM, robust estimation) raises a clear "not implemented" error.
-* Item selection supports the `MFI` and `bOpt` criteria only (no `MLWI`,
-  `KL`, `progressive`, `proportional`, `MEI`, `MEPV`, `GDI`, content balancing
-  or `nAvailable`); `randomesque` is only meaningful for the criteria catR
-  treats as rank-based, i.e. exactly those two.
+* The dichotomous model with methods `EAP`/`BM`/`ML`/`WL`/`ROB`, priors `norm`/`unif`/`Jeffreys`, and
+  criteria `MFI`/`bOpt`/`thOpt`/`MLWI`/`MPWI`/`KL`/`KLP`/`progressive`/`proportional`/`random` are
+  implemented. The rest of catR (polytomous models, the `MEI`/`MEPV`/`GDI`/`GDIP` criteria, content
+  balancing) raises a clear "not implemented" error.
+* Item selection covers content balancing and `nAvailable` only partially: `nAvailable`
+  is supported, `cbControl`/`cbGroup` raise `NotImplementedError` instead of being
+  silently ignored.
 * The numerics mirror catR exactly, including its known weaknesses (raw product likelihood,
   33-point grid). Making it *more* robust than catR is a deliberate follow-up, after parity is
   proven.

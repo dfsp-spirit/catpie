@@ -114,10 +114,10 @@ def test_thetaEst_semTheta_mirror_eapEst_eapSem():
 
 
 def test_thetaEst_rejects_unimplemented_methods():
-    # EAP/BM/ML/WL are implemented; ROB and others are not.
+    # EAP/BM/ML/WL/ROB are implemented; anything else is not.
     with pytest.raises(ValueError, match="not implemented"):
-        thetaEst([easy], [1], method="ROB")
-    for method in ("ML", "BM", "WL"):
+        thetaEst([easy], [1], method="XYZ")
+    for method in ("ML", "BM", "WL", "ROB"):
         thetaEst([easy], [1], method=method)  # must not raise
 
 

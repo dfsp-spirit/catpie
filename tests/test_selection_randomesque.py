@@ -290,8 +290,9 @@ def test_invalid_randomesque_is_rejected():
 
 
 def test_unknown_criterion_is_rejected():
+    # "KL" is implemented now; GDI/MEI/MEPV/GDIP are not (yet).
     with pytest.raises(ValueError, match="not implemented"):
-        nextItem([(1.0, 0.0, 0.0, 1.0)], 0.0, [], criterion="KL")
+        nextItem([(1.0, 0.0, 0.0, 1.0)], 0.0, [], criterion="GDI")
 
 
 def test_exhausted_bank_raises():
