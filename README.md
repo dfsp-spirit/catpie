@@ -208,27 +208,13 @@ So the experiment's EAP path matches catR to **floating-point precision** (on th
 Python and R share the same C library math functions, so agreement is even tighter than the
 sibling JS port), and BM/ML/WL match catR to **catR's own numerical precision**.
 
-## Development
 
-```shell
-uv sync --group dev        # install package + dev deps (pytest)
-uv run pytest              # unit tests (no R needed)
-uv run python scripts/validate.py            # parity vs committed catR references
-uv run python scripts/validate.py reference/catr_reference_goodbank.json  # strict BM/ML/WL
-uv run python examples/demo.py               # demo
-```
 
-### Building the documentation
+## Developer Information
 
-The user-friendly documentation (built with MkDocs + mkdocstrings) lives in
-[`docs/`](docs/) and is published to GitHub Pages by the
-[`Docs` workflow](.github/workflows/docs.yml). Build it locally with:
+For instructions on how to setup a development environment, run the tests, and contribute, please refer to [README_DEVELOPMENT.md](./README_DEVELOPMENT.md).
 
-```shell
-uv sync --group docs
-uv run mkdocs build --strict   # outputs to site/
-uv run mkdocs serve            # live preview at http://localhost:8000
-```
+
 
 ## Scope / non-goals
 
