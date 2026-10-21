@@ -1,6 +1,6 @@
 [project]
 name = "catpie"
-version = "0.1.0"
+version = "0.2.0"
 description = "Computerized adaptive testing (CAT) in pure Python - a faithful translation of the most relevant subset of the R package catR: 4PL IRF, EAP/BM/ML/WL ability estimation with standard errors, and MFI/bOpt item selection."
 readme = "README.md"
 requires-python = ">=3.9"

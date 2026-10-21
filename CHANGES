@@ -2,7 +2,7 @@
 
 
 
-### Current WIP
+### Version 0.2.0 -- Randomesque Support and more Selection Criteria
 
 * NEW: `randomesque = k` item selection for `MFI` and `bOpt` (catR's rank-based candidate rule, including ties at the k-th position), exposed as `NextItemResult.candidates` so callers can log/audit the draw. `randomesque` and the new `seed` / `rng` arguments are also accepted by `selectNextItem` and `randomCAT`.
 * NEW: `checkStopRule(..., out=...)` filters already-administered items for the `minInfo` rule (in catR, forgetting to filter silently disables the rule).
@@ -13,6 +13,7 @@
 * NEW: parity reference and tests for randomesque selection (`scripts/generate_reference_selection.R`, `reference/catr_selection.json`, `tests/test_selection_randomesque.py`).
 * DOC: Add user-friendly MkDocs documentation (concepts, quickstart, API reference) published to GitHub Pages
 * DOC: Enhance all public API docstrings (Google style with Args/Returns/Raises and expected value ranges)
+
 
 
 ### Version 0.1.0 -- Initial release
